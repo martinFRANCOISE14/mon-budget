@@ -2,50 +2,138 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Mon Budget</title>
+  <title>Suivi de Budget Hors Ligne</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="manifest" href="manifest.json" />
   <style>
     body {
-  font-family: sans-serif;
-  margin: 0;
-  background: #f4f4f4;
-  padding: 20px;
-  font-size: 18px; /* 👈 Texte plus grand */
-}
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f4;
+      font-size: 18px;
+    }
 
-    .container { background: white; max-width: 500px; margin: auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+    h2, h3 {
+      color: #333;
+      text-align: center;
+    }
+
     input, select, button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 14px; /* 👈 Plus grand */
-  font-size: 18px; /* 👈 Texte plus grand */
-}
+      margin: 10px 0;
+      padding: 12px;
+      width: 100%;
+      font-size: 18px;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
 
-    .income { color: green; }
-    .expense { color: red; }
-    .total { font-weight: bold; margin-top: 20px; }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #ccc;
+    }
+
+    .transaction {
+      margin-bottom: 10px;
+    }
+
+    .income {
+      color: green;
+    }
+
+    .expense {
+      color: red;
+    }
+
+    .total {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .reset-button {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Suivi de Budget</h2>
 
+    <label>Type</label>
     <select id="type">
       <option value="revenu">Revenu</option>
       <option value="dépense">Dépense</option>
     </select>
 
-    <input type="text" id="categorie" placeholder="Catégorie ex: Salaire">
-    <input type="number" id="montant" placeholder="Montant (€)" step="0.01">
+    <label>Catégorie</label>
+    <input type="text" id="categorie" placeholder="Salaire, Courses, Transport...">
+
+    <label>Montant (€)</label>
+    <input type="number" id="montant" placeholder="Ex : 100" step="0.01">
+
     <button onclick="ajouterTransaction()">Ajouter</button>
-    <button onclick="reinitialiser()">Réinitialiser</button>
+    <button class="reset-button" onclick="resetTransactions()">Réinitialiser</button>
 
     <div class="total" id="solde">Solde : 0 €</div>
+
     <h3>Historique</h3>
     <div id="historique"></div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+
+    function afficherHistorique() {
+      const histoDiv = document.getElementById('historique');
+      histoDiv.innerHTML = '';
+      let total = 0;
+
+      transactions.forEach(t => {
+        const div = document.createElement('div');
+        div.classList.add('transaction');
+        div.classList.add(t.type === 'revenu' ? 'income' : 'expense');
+        div.textContent = `${t.categorie} : ${t.type === 'revenu' ? '+' : '-'}${t.montant} €`;
+        histoDiv.appendChild(div);
+
+        total += t.type === 'revenu' ? t.montant : -t.montant;
+      });
+
+      document.getElementById('solde').textContent = `Solde : ${total.toFixed(2)} €`;
+    }
+
+    function ajouterTransaction() {
+      const type = document.getElementById('type').value;
+      const categorie = document.getElementById('categorie').value;
+      const montant = parseFloat(document.getElementById('montant').value);
+
+      if (!categorie || isNaN(montant) || montant <= 0) {
+        alert("Remplis tous les champs correctement !");
+        return;
+      }
+
+      transactions.push({ type, categorie, montant });
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+      document.getElementById('categorie').value = '';
+      document.getElementById('montant').value = '';
+      afficherHistorique();
+    }
+
+    function resetTransactions() {
+      if (confirm("Tu es sûr de vouloir tout réinitialiser ?")) {
+        transactions = [];
+        localStorage.removeItem('transactions');
+        afficherHistorique();
+      }
+    }
+
+    afficherHistorique();
+  </script>
 </body>
 </html>
