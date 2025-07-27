@@ -1,16 +1,38 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
   <title>Mon Budget</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="manifest.json" />
-  <script defer src="app.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 0; background: #f4f4f4; padding: 20px; }
+    .container { background: white; max-width: 500px; margin: auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+    input, select, button { width: 100%; margin-top: 10px; padding: 10px; }
+    .income { color: green; }
+    .expense { color: red; }
+    .total { font-weight: bold; margin-top: 20px; }
+  </style>
 </head>
 <body>
-  <h1>Suivi Budget</h1>
-  <input id="montant" type="number" placeholder="Montant" />
-  <button onclick="ajouter()">Ajouter</button>
-  <p id="total">Total: 0 €</p>
+  <div class="container">
+    <h2>Suivi de Budget</h2>
+
+    <select id="type">
+      <option value="revenu">Revenu</option>
+      <option value="dépense">Dépense</option>
+    </select>
+
+    <input type="text" id="categorie" placeholder="Catégorie ex: Salaire">
+    <input type="number" id="montant" placeholder="Montant (€)" step="0.01">
+    <button onclick="ajouterTransaction()">Ajouter</button>
+    <button onclick="reinitialiser()">Réinitialiser</button>
+
+    <div class="total" id="solde">Solde : 0 €</div>
+    <h3>Historique</h3>
+    <div id="historique"></div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
