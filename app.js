@@ -1,7 +1,15 @@
-let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+function getTransactions(compte) {
+  return JSON.parse(localStorage.getItem(`transactions_${compte}`) || '[]');
+}
+
+function setTransactions(compte, data) {
+  localStorage.setItem(`transactions_${compte}`, JSON.stringify(data));
+}
 
 function afficherHistorique() {
+  const compte = document.getElementById('compte').value;
   const histo = document.getElementById('historique');
+  let transactions = getTransactions(compte);
   let total = 0;
   histo.innerHTML = '';
 
@@ -18,6 +26,7 @@ function afficherHistorique() {
 }
 
 function ajouterTransaction() {
+  const compte = document.getElementById('compte').value;
   const type = document.getElementById('type').value;
   const categorie = document.getElementById('categorie').value.trim();
   const montant = parseFloat(document.getElementById('montant').value);
@@ -27,19 +36,23 @@ function ajouterTransaction() {
     return;
   }
 
+  let transactions = getTransactions(compte);
   transactions.push({ type, categorie, montant });
-  localStorage.setItem('transactions', JSON.stringify(transactions));
+  setTransactions(compte, transactions);
+
   document.getElementById('categorie').value = '';
   document.getElementById('montant').value = '';
   afficherHistorique();
 }
 
 function reinitialiser() {
-  if (confirm("Tout supprimer ?")) {
-    localStorage.removeItem('transactions');
-    transactions = [];
+  const compte = document.getElementById('compte').value;
+  if (confirm(`Tout supprimer pour le compte "${compte}" ?`)) {
+    localStorage.removeItem(`transactions_${compte}`);
     afficherHistorique();
   }
 }
+
+document.getElementById('compte').addEventListener('change', afficherHistorique);
 
 afficherHistorique();
